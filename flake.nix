@@ -33,10 +33,13 @@
       # Usage:
       #   let bunLib = bun.lib.mkBunLib { inherit pkgs; };
       #   in bunLib.buildBunBinary { pname = "my-app"; ... }
+      #
+      # Defaults to this fork's bun package (self.packages.${system}.bun).
+      # Pass `bun` explicitly to override.
       lib.mkBunLib =
         {
           pkgs,
-          bun ? pkgs.bun,
+          bun ? self.packages.${pkgs.stdenv.hostPlatform.system}.bun,
         }:
         import ./nix/bun2nix {
           inherit pkgs bun;
@@ -156,6 +159,11 @@
 
       in
       {
+        # The fork's bun package. Re-exports nixpkgs bun until the fork
+        # modifies the runtime source (issue #1).
+        packages.bun = pkgs.bun;
+        packages.default = pkgs.bun;
+
         devShells.default =
           (pkgs.mkShell.override {
             stdenv = pkgs.clangStdenv;
