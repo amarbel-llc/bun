@@ -63,14 +63,14 @@ let
     inherit pkgs bun;
   };
 
-  buildBunBinary = import ./build-bun-binary.nix {
+  bunBinaryBuilders = import ./build-bun-binary.nix {
     inherit pkgs lib bun fetchBunDeps;
   };
 
 in
 {
+  inherit (bunBinaryBuilders) buildBunBinary buildBunBinaries;
   inherit
-    buildBunBinary
     fetchBunDeps
     hook
     mkDerivation
