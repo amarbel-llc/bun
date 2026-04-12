@@ -5,8 +5,12 @@
 # shared store path, not embedded in the output.
 #
 # Two derivations:
-#   1. bundle: runs `bun build --bytecode --target=bun` (heavy, cached)
+#   1. bundle: runs `bun build --target=bun --format=esm` (heavy, cached)
 #   2. wrapper: writeShellScriptBin (trivial, references store bun + bundle)
+#
+# Uses ESM format (not --bytecode) to support top-level await, which is
+# common in script-style entrypoints. Bytecode forces CJS output format
+# which rejects top-level await. See amarbel-llc/bun#2.
 #
 # The `bun` argument is overridable — when a future bun-minimal exists,
 # consumers just pass it.
@@ -53,8 +57,8 @@ let
 
       mkdir -p $out
       bun build ${lib.escapeShellArg entrypoint} \
-        --bytecode \
         --target=bun \
+        --format=esm \
         --outdir=$out \
         ${lib.escapeShellArgs bunBuildFlags}
 
