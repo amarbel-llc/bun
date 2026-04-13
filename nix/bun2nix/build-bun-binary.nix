@@ -105,6 +105,7 @@ let
     pkgs.writeShellScriptBin name ''
       ${envExports}
       ${pathSetup}
+      unset LD_LIBRARY_PATH
       exec ${bun}/bin/bun ${bundle}/${jsFile} "$@"
     '';
 
