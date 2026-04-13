@@ -157,12 +157,36 @@
           pkgs.darwin.apple_sdk.frameworks.Security
         ];
 
+        bunLib = self.lib.mkBunLib { inherit pkgs; };
+
       in
       {
         # The fork's bun package. Re-exports nixpkgs bun until the fork
         # modifies the runtime source (issue #1).
         packages.bun = pkgs.bun;
         packages.default = pkgs.bun;
+
+        # -- buildZxScript test packages --
+
+        # Tier 1: zero-config (just zx)
+        packages.test-zx-basic = bunLib.buildZxScript {
+          pname = "test-zx-basic";
+          version = "0.0.1";
+          src = ./test/nix/zx-basic;
+        };
+
+        # Tier 2: extra deps (zx + chalk)
+        packages.test-zx-extra-deps = bunLib.buildZxScript {
+          pname = "test-zx-extra-deps";
+          version = "0.0.1";
+          src = ./test/nix/zx-extra-deps;
+          extraDeps = {
+            "chalk@5.4.1" = pkgs.fetchurl {
+              url = "https://registry.npmjs.org/chalk/-/chalk-5.4.1.tgz";
+              hash = "sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==";
+            };
+          };
+        };
 
         devShells.default =
           (pkgs.mkShell.override {

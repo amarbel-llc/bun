@@ -67,9 +67,14 @@ let
     inherit pkgs lib bun fetchBunDeps;
   };
 
+  zxScriptBuilder = import ./build-zx-script.nix {
+    inherit pkgs lib bun fetchBunDeps;
+  };
+
 in
 {
   inherit (bunBinaryBuilders) buildBunBinary buildBunBinaries;
+  inherit (zxScriptBuilder) buildZxScript;
   inherit
     fetchBunDeps
     hook
