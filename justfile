@@ -15,6 +15,14 @@ check:
 clean:
   nix-store --gc
 
+# Resolve SRI hashes for ///!dep directives in a zx script
+update-zx-deps script:
+  bun scripts/update-zx-deps.ts {{script}}
+
+# Check that all ///!dep hashes are up to date (for CI)
+check-zx-deps script:
+  bun scripts/update-zx-deps.ts --check {{script}}
+
 # Compare cold-start time: ESM bundle vs bytecode CJS.
 # Bytecode requires CJS (no top-level await), ESM supports TLA.
 [group('explore')]

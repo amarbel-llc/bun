@@ -186,6 +186,13 @@
           };
         };
 
+        # Tier 4: file-based deps (///!dep directives in script)
+        packages.test-zx-from-file = bunLib.buildZxScriptFromFile {
+          pname = "test-zx-from-file";
+          version = "0.0.1";
+          script = ./test/nix/zx-from-file/index.ts;
+        };
+
         devShells.default =
           (pkgs.mkShell.override {
             stdenv = pkgs.clangStdenv;

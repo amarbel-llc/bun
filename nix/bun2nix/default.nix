@@ -74,7 +74,7 @@ let
 in
 {
   inherit (bunBinaryBuilders) buildBunBinary buildBunBinaries;
-  inherit (zxScriptBuilder) buildZxScript;
+  inherit (zxScriptBuilder) buildZxScript buildZxScriptFromFile;
   inherit
     fetchBunDeps
     hook
