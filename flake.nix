@@ -19,6 +19,11 @@
     # The Nix builder functions are vendored in nix/bun2nix/.
     bun2nix.url = "github:nix-community/bun2nix";
     bun2nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    # batman — bats wrapper with bundled support libraries.
+    # Does NOT follow our nixpkgs: nokogiri (ronn dep) fails to build
+    # against nixpkgs-unstable. See amarbel-llc/bob#100.
+    bob.url = "github:amarbel-llc/bob";
   };
 
   outputs =
@@ -27,6 +32,7 @@
       nixpkgs,
       flake-utils,
       bun2nix,
+      bob,
     }:
     {
       # Non-system-specific lib output.
@@ -63,6 +69,9 @@
 
         # Node.js 24 - matching the bootstrap script (targets 24.3.0, actual version from nixpkgs-unstable)
         nodejs = pkgs.nodejs_24;
+
+        # batman — bats wrapper with bundled support libraries
+        batman = bob.packages.${system}.batman;
 
         # Build tools and dependencies
         packages = [
@@ -107,6 +116,9 @@
           pkgs.wget
           pkgs.unzip
           pkgs.xz
+
+          # Testing
+          batman
 
           # Additional dependencies for Linux
         ]

@@ -23,6 +23,11 @@ update-zx-deps script:
 check-zx-deps script:
   bun scripts/update-zx-deps.ts --check {{script}}
 
+# Run bats end-to-end tests for nix builders (no sandbox: tests need nix daemon + network)
+[group('test')]
+test-bats *args:
+  bats --no-sandbox zz-tests_bats/ {{args}}
+
 # Compare cold-start time: ESM bundle vs bytecode CJS.
 # Bytecode requires CJS (no top-level await), ESM supports TLA.
 [group('explore')]
