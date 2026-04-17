@@ -151,10 +151,8 @@
           pkgs.gdk-pixbuf
         ]
         ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
-          # macOS specific dependencies
-          pkgs.darwin.apple_sdk.frameworks.CoreFoundation
-          pkgs.darwin.apple_sdk.frameworks.CoreServices
-          pkgs.darwin.apple_sdk.frameworks.Security
+          # macOS specific dependencies (new unified SDK pattern, see nixos.org #354146)
+          pkgs.apple-sdk
         ];
 
         bunLib = self.lib.mkBunLib { inherit pkgs; };
