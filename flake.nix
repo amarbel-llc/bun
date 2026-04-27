@@ -251,33 +251,18 @@
           src = ./test/nix/bin-process-exit-disabled;
         };
 
-        # Failure fixture: process.exit() with the lint on. The bundle
-        # derivation MUST fail its build phase with an n/no-process-exit
-        # diagnostic. pkgs.testers.testBuildFailure inverts the failure
-        # into a passing check whose $out contains the captured log.
-        # We target .passthru.bundle (not the wrapper) because
-        # testBuildFailure can only catch failures from the wrapped
-        # derivation's own builder — wrapper-level dependency failures
-        # cascade past it.
-        checks.lint-stack-rejects-process-exit =
-          let
-            failingBundle = pkgs.testers.testBuildFailure (
-              (bunLib.buildBunBinary {
-                pname = "test-bin-process-exit-fail";
-                version = "0.0.1";
-                src = ./test/nix/bin-process-exit-fail;
-              }).passthru.bundle
-            );
-          in
-          pkgs.runCommand "lint-stack-rejects-process-exit" { } ''
-            if ! grep -q 'n/no-process-exit' ${failingBundle}/testBuildFailure.log; then
-              echo "lint-stack-rejects-process-exit: build failed but the log does not mention n/no-process-exit." >&2
-              echo "log follows:" >&2
-              cat ${failingBundle}/testBuildFailure.log >&2
-              exit 1
-            fi
-            touch $out
-          '';
+        # Failure fixture: process.exit() with the lint on. We target
+        # .passthru.bundle (not the wrapper) because testBuildFailure'
+        # can only catch failures from the wrapped derivation's own
+        # builder — wrapper-level dependency failures cascade past it.
+        checks.lint-stack-rejects-process-exit = pkgs.testers.testBuildFailure' {
+          drv = (bunLib.buildBunBinary {
+            pname = "test-bin-process-exit-fail";
+            version = "0.0.1";
+            src = ./test/nix/bin-process-exit-fail;
+          }).passthru.bundle;
+          expectedBuilderLogEntries = [ "n/no-process-exit" ];
+        };
 
         devShells.default =
           (pkgs.mkShell.override {
