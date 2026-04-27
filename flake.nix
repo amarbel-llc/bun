@@ -169,12 +169,39 @@
 
         bunLib = self.lib.mkBunLib { inherit pkgs; };
 
+        # bun2nix CLI from the upstream flake. Used by the lint-stack
+        # regen app and the lint-stack drift-guard check.
+        bun2nixCli = bun2nix.packages.${system}.bun2nix;
+
+        # Lint stack: vendored eslint + plugins under nix/bun2nix/lint/.
+        # See amarbel-llc/bun#7 and
+        # docs/decisions/0001-vendor-eslint-stack-for-buildbunbinary-lint.md.
+        regenLintStack = import ./nix/bun2nix/lint/regen.nix {
+          inherit pkgs;
+          bun = pkgs.bun;
+          bun2nix = bun2nixCli;
+        };
+        lintStackUpToDate = import ./nix/bun2nix/lint/check.nix {
+          inherit pkgs;
+          bun2nix = bun2nixCli;
+          lintDir = ./nix/bun2nix/lint;
+        };
+
       in
       {
         # The fork's bun package. Re-exports nixpkgs bun until the fork
         # modifies the runtime source (issue #1).
         packages.bun = pkgs.bun;
         packages.default = pkgs.bun;
+
+        # -- Lint stack regen app + drift-guard check --
+
+        apps.regen-lint-stack = {
+          type = "app";
+          program = "${regenLintStack}/bin/regen-lint-stack";
+        };
+
+        checks.lint-stack-up-to-date = lintStackUpToDate;
 
         # -- buildZxScript test packages --
 
