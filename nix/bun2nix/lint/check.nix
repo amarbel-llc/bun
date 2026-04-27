@@ -50,7 +50,7 @@ pkgs.runCommand "lint-stack-up-to-date"
       exit 1
     fi
 
-    bun2nix --lockfile=./bun.lock --out-file=./bun.nix.regenerated
+    bun2nix --lock-file=./bun.lock --output-file=./bun.nix.regenerated
 
     if ! diff -u bun.nix bun.nix.regenerated; then
       cat >&2 <<EOF

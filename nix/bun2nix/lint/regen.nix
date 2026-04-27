@@ -68,7 +68,7 @@ pkgs.writeShellApplication {
 
     # 2. Convert bun.lock to bun.nix (pure — bun2nix doesn't touch the network).
     echo "regen-lint-stack: running bun2nix to refresh bun.nix"
-    bun2nix --lockfile=./bun.lock --out-file=./bun.nix
+    bun2nix --lock-file=./bun.lock --output-file=./bun.nix
 
     # 3. Drop node_modules — it's a side-effect of step 1 and not committed.
     rm -rf node_modules
