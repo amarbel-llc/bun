@@ -75,11 +75,11 @@ let
   };
 
   bunBinaryBuilders = import ./build-bun-binary.nix {
-    inherit pkgs lib bun fetchBunDeps;
+    inherit pkgs lib bun fetchBunDeps eslintCache;
   };
 
   zxScriptBuilder = import ./build-zx-script.nix {
-    inherit pkgs lib bun fetchBunDeps;
+    inherit pkgs lib bun fetchBunDeps eslintCache;
   };
 
 in

@@ -32,7 +32,7 @@
 #
 # The wrapper unsets LD_LIBRARY_PATH to prevent devshell library leaks
 # (see amarbel-llc/bun#4).
-{ pkgs, lib, bun, fetchBunDeps }:
+{ pkgs, lib, bun, fetchBunDeps, eslintCache }:
 
 let
   # -- Helpers --
@@ -211,6 +211,7 @@ let
       bunfigPath ? null,
       npmrcPath ? null,
       overrides ? { },
+      disableLint ? false,
       _skipBuiltinZx ? false,
       ...
     }:
@@ -253,6 +254,11 @@ let
         buildPhase =
           ''
             runHook preBuild
+          ''
+          + lib.optionalString (!disableLint) ''
+            ${eslintCache}/bin/eslint ${lib.escapeShellArg entrypoint}
+          ''
+          + ''
 
             export BUN_INSTALL_CACHE_DIR=$(mktemp -d)
           ''
@@ -315,6 +321,7 @@ let
       bunBuildFlags ? [ ],
       runtimeInputs ? [ ],
       runtimeEnv ? { },
+      disableLint ? false,
       ...
     }:
     let
@@ -347,6 +354,7 @@ let
         runtimeEnv
         extraDeps
         entrypoint
+        disableLint
         ;
       src = srcDir;
       _skipBuiltinZx = true;

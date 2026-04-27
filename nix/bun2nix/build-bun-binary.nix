@@ -13,7 +13,7 @@
 #
 # The `bun` argument is overridable — when a future bun-minimal exists,
 # consumers just pass it.
-{ pkgs, lib, bun, fetchBunDeps }:
+{ pkgs, lib, bun, fetchBunDeps, eslintCache }:
 
 let
   # Map a .ts/.tsx/.mts/.cts basename to .js
@@ -47,6 +47,7 @@ let
       bunfigPath ? null,
       npmrcPath ? null,
       overrides ? { },
+      disableLint ? false,
     }:
     let
       hasDeps = bunNix != null;
@@ -64,6 +65,10 @@ let
 
       buildPhase = ''
         runHook preBuild
+
+        ${lib.optionalString (!disableLint) ''
+          ${eslintCache}/bin/eslint ${lib.escapeShellArgs entrypointPaths}
+        ''}
 
         ${lib.optionalString hasDeps ''
           export BUN_INSTALL_CACHE_DIR=$(mktemp -d)
@@ -125,6 +130,7 @@ in
       bunfigPath ? null,
       npmrcPath ? null,
       overrides ? { },
+      disableLint ? false,
       ...
     }:
     let
@@ -138,6 +144,7 @@ in
           bunfigPath
           npmrcPath
           overrides
+          disableLint
           ;
         entrypointPaths = [ entrypoint ];
       };
@@ -163,6 +170,7 @@ in
       bunfigPath ? null,
       npmrcPath ? null,
       overrides ? { },
+      disableLint ? false,
       ...
     }:
     let
@@ -176,6 +184,7 @@ in
           bunfigPath
           npmrcPath
           overrides
+          disableLint
           ;
         entrypointPaths = builtins.attrValues entrypoints;
       };
