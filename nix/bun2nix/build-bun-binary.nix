@@ -91,6 +91,10 @@ let
     };
 
   # Shared: create a wrapper script for a single binary.
+  # The bundle derivation is exposed as a passthru attr so callers
+  # (e.g. pkgs.testers.testBuildFailure) can target the bundle's own
+  # builder — failures inside the bundle propagate as build-input
+  # failures to the wrapper, which testBuildFailure cannot catch.
   mkWrapper =
     {
       name,
@@ -106,13 +110,14 @@ let
       pathSetup = lib.optionalString (runtimeInputs != [ ]) ''
         export PATH="${lib.makeBinPath runtimeInputs}:$PATH"
       '';
+      wrapper = pkgs.writeShellScriptBin name ''
+        ${envExports}
+        ${pathSetup}
+        unset LD_LIBRARY_PATH
+        exec ${bun}/bin/bun ${bundle}/${jsFile} "$@"
+      '';
     in
-    pkgs.writeShellScriptBin name ''
-      ${envExports}
-      ${pathSetup}
-      unset LD_LIBRARY_PATH
-      exec ${bun}/bin/bun ${bundle}/${jsFile} "$@"
-    '';
+    wrapper // { passthru = (wrapper.passthru or { }) // { inherit bundle; }; };
 
 in
 {

@@ -233,6 +233,52 @@
           script = ./test/nix/zx-from-file/index.ts;
         };
 
+        # -- buildBunBinary lint test packages (amarbel-llc/bun#7) --
+
+        # Recommended pattern: process.exitCode = N; return.
+        # Lint runs (default) and the bundle builds.
+        packages.test-bin-no-process-exit = bunLib.buildBunBinary {
+          pname = "test-bin-no-process-exit";
+          version = "0.0.1";
+          src = ./test/nix/bin-no-process-exit;
+        };
+
+        # Per-line escape hatch: process.exit() is allowed because of an
+        # eslint-disable-next-line comment. Lint runs and the bundle builds.
+        packages.test-bin-process-exit-disabled = bunLib.buildBunBinary {
+          pname = "test-bin-process-exit-disabled";
+          version = "0.0.1";
+          src = ./test/nix/bin-process-exit-disabled;
+        };
+
+        # Failure fixture: process.exit() with the lint on. The bundle
+        # derivation MUST fail its build phase with an n/no-process-exit
+        # diagnostic. pkgs.testers.testBuildFailure inverts the failure
+        # into a passing check whose $out contains the captured log.
+        # We target .passthru.bundle (not the wrapper) because
+        # testBuildFailure can only catch failures from the wrapped
+        # derivation's own builder — wrapper-level dependency failures
+        # cascade past it.
+        checks.lint-stack-rejects-process-exit =
+          let
+            failingBundle = pkgs.testers.testBuildFailure (
+              (bunLib.buildBunBinary {
+                pname = "test-bin-process-exit-fail";
+                version = "0.0.1";
+                src = ./test/nix/bin-process-exit-fail;
+              }).passthru.bundle
+            );
+          in
+          pkgs.runCommand "lint-stack-rejects-process-exit" { } ''
+            if ! grep -q 'n/no-process-exit' ${failingBundle}/testBuildFailure.log; then
+              echo "lint-stack-rejects-process-exit: build failed but the log does not mention n/no-process-exit." >&2
+              echo "log follows:" >&2
+              cat ${failingBundle}/testBuildFailure.log >&2
+              exit 1
+            fi
+            touch $out
+          '';
+
         devShells.default =
           (pkgs.mkShell.override {
             stdenv = pkgs.clangStdenv;
