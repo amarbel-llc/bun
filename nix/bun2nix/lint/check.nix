@@ -1,64 +1,38 @@
 # Drift guard: assert that the committed bun.nix matches what bun2nix
 # would generate from the committed bun.lock. Fails the check if they
-# disagree, with a one-line fix instruction.
+# disagree.
 #
-# This is the pure half of the bootstrap. It runs in the sandbox, no
-# network, and only needs bun.lock + bun2nix to do its job. It does NOT
-# detect package.json → bun.lock drift; that's caught by `nix run .#regen-lint-stack`.
-#
-# See:
-#   - amarbel-llc/bun#7
-#   - regen.nix (the impure regenerator)
+# Bootstraps via `nix run .#regen-lint-stack` (see regen.nix). The check
+# is sandboxed and pure — no network, only bun.lock and bun.nix as
+# inputs, so the cache key isolates it from edits to package.json or
+# eslint.config.js. It does not detect package.json → bun.lock drift;
+# regen.nix is the only thing that can resolve semver.
 {
   pkgs,
   bun2nix,
-  lintDir,
+  bunLock,
+  bunNix,
 }:
 
 pkgs.runCommand "lint-stack-up-to-date"
   {
     nativeBuildInputs = [ bun2nix ];
-    src = lintDir;
+    inherit bunLock bunNix;
   }
   ''
-    cp -r $src/* .
-    chmod -R u+w .
-
-    if [ ! -f bun.lock ]; then
-      cat >&2 <<EOF
-    lint-stack-up-to-date: bun.lock is missing from nix/bun2nix/lint/.
-
-    Bootstrap the lint stack with:
-
-      nix run .#regen-lint-stack
-
-    Then commit bun.lock and bun.nix.
-    EOF
+    if ! [ -f "$bunLock" ] || ! [ -f "$bunNix" ]; then
+      echo "lint-stack-up-to-date: bun.lock or bun.nix is missing from nix/bun2nix/lint/." >&2
+      echo "" >&2
+      echo "Bootstrap: nix run .#regen-lint-stack, then commit bun.lock and bun.nix." >&2
       exit 1
     fi
 
-    if [ ! -f bun.nix ]; then
-      cat >&2 <<EOF
-    lint-stack-up-to-date: bun.nix is missing from nix/bun2nix/lint/.
+    bun2nix --lock-file="$bunLock" --output-file=./bun.nix.regenerated
 
-    Run:
-
-      nix run .#regen-lint-stack
-
-    to regenerate it from bun.lock, then commit it.
-    EOF
-      exit 1
-    fi
-
-    bun2nix --lock-file=./bun.lock --output-file=./bun.nix.regenerated
-
-    if ! diff -u bun.nix bun.nix.regenerated; then
-      cat >&2 <<EOF
-
-    lint-stack-up-to-date: nix/bun2nix/lint/bun.nix is out of date relative to bun.lock.
-
-    Fix: run \`nix run .#regen-lint-stack\` and commit the updated bun.nix.
-    EOF
+    if ! diff -u "$bunNix" bun.nix.regenerated; then
+      echo "" >&2
+      echo "lint-stack-up-to-date: nix/bun2nix/lint/bun.nix is out of date relative to bun.lock." >&2
+      echo "Fix: nix run .#regen-lint-stack, then commit the updated bun.nix." >&2
       exit 1
     fi
 

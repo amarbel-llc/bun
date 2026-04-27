@@ -184,7 +184,8 @@
         lintStackUpToDate = import ./nix/bun2nix/lint/check.nix {
           inherit pkgs;
           bun2nix = bun2nixCli;
-          lintDir = ./nix/bun2nix/lint;
+          bunLock = ./nix/bun2nix/lint/bun.lock;
+          bunNix = ./nix/bun2nix/lint/bun.nix;
         };
 
       in
