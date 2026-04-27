@@ -63,6 +63,17 @@ let
     inherit pkgs bun;
   };
 
+  # Lint stack: materialized once per (eslint, plugin, parser) version
+  # triple and reused by every buildBunBinary / buildZxScript bundle.
+  # Bumps go through `nix run .#regen-lint-stack` at the flake level.
+  eslintCache = import ./lint/eslint-cache.nix {
+    inherit pkgs bun fetchBunDeps;
+    bunNix = ./lint/bun.nix;
+    packageJson = ./lint/package.json;
+    bunLock = ./lint/bun.lock;
+    eslintConfig = ./lint/eslint.config.js;
+  };
+
   bunBinaryBuilders = import ./build-bun-binary.nix {
     inherit pkgs lib bun fetchBunDeps;
   };
@@ -76,6 +87,7 @@ in
   inherit (bunBinaryBuilders) buildBunBinary buildBunBinaries;
   inherit (zxScriptBuilder) buildZxScript buildZxScriptFromFile;
   inherit
+    eslintCache
     fetchBunDeps
     hook
     mkDerivation
