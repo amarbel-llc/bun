@@ -13,6 +13,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # nixpkgs-master is the SHA-pinned anchor that eng's update-nix-
+    # repos recipe cascades. Unused in outputs — the actual build still
+    # consumes `nixpkgs` above (nixos-unstable, Hydra-cached), which is
+    # what keeps bun's compile-heavy build inputs in the public binary
+    # cache. This input just lets the cascade see and update a pinned ref.
+    nixpkgs-master.url = "github:NixOS/nixpkgs/d233902339c02a9c334e7e593de68855ad26c4cb";
     flake-utils.url = "github:numtide/flake-utils";
 
     # bun2nix — only used for the cacheEntryCreator Zig binary.
