@@ -39,6 +39,7 @@
       flake-utils,
       bun2nix,
       bob,
+      ...
     }:
     {
       # Non-system-specific lib output.
