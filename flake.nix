@@ -28,8 +28,8 @@
 
     # batman — bats wrapper with bundled support libraries.
     # Does NOT follow our nixpkgs: nokogiri (ronn dep) fails to build
-    # against nixpkgs-unstable. See amarbel-llc/bob#100.
-    bob.url = "github:amarbel-llc/bob";
+    # against nixpkgs-unstable. See amarbel-llc/bats#100.
+    bats.url = "github:amarbel-llc/bats";
   };
 
   outputs =
@@ -38,7 +38,7 @@
       nixpkgs,
       flake-utils,
       bun2nix,
-      bob,
+      bats,
       ...
     }:
     {
@@ -78,7 +78,7 @@
         nodejs = pkgs.nodejs_24;
 
         # batman — bats wrapper with bundled support libraries
-        batman = bob.packages.${system}.batman;
+        batman = bats.packages.${system}.batman;
 
         # Build tools and dependencies
         packages = [
