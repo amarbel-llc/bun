@@ -1,4 +1,4 @@
-default: check
+default: validate
 
 build:
   bun bd
@@ -9,8 +9,16 @@ test *args:
 fmt:
   nix fmt
 
-check:
+validate: validate-flake validate-devshell
+
+validate-flake:
   nix flake check
+
+# Verify the devShell evaluates and builds without errors. Catches
+# vendor-env / overlay breakage that `nix flake check` and the prod
+# build can mask. No store-output usage --- just a build-check.
+validate-devshell:
+  nix build --no-link .#devShells.{{arch()}}-linux.default
 
 clean:
   nix-store --gc
