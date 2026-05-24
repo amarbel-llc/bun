@@ -40,18 +40,18 @@ pkgs.mkShell rec {
   ] ++ pkgs.lib.optionals pkgs.stdenv.isLinux [
     gdb
     # Chromium dependencies for Puppeteer tests
-    xorg.libX11
-    xorg.libxcb
-    xorg.libXcomposite
-    xorg.libXcursor
-    xorg.libXdamage
-    xorg.libXext
-    xorg.libXfixes
-    xorg.libXi
-    xorg.libXrandr
-    xorg.libXrender
-    xorg.libXScrnSaver
-    xorg.libXtst
+    libx11
+    libxcb
+    libxcomposite
+    libxcursor
+    libxdamage
+    libxext
+    libxfixes
+    libxi
+    libxrandr
+    libxrender
+    libxscrnsaver
+    libxtst
     libxkbcommon
     mesa
     nspr
@@ -72,7 +72,7 @@ pkgs.mkShell rec {
     liberation_ttf
     atk
     libdrm
-    xorg.libxshmfence
+    libxshmfence
     gdk-pixbuf
   ];
 

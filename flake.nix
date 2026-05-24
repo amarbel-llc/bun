@@ -134,18 +134,18 @@
 
           # Chromium dependencies for Puppeteer testing (from bootstrap.sh lines 1397-1483)
           # X11 and graphics libraries
-          pkgs.xorg.libX11
-          pkgs.xorg.libxcb
-          pkgs.xorg.libXcomposite
-          pkgs.xorg.libXcursor
-          pkgs.xorg.libXdamage
-          pkgs.xorg.libXext
-          pkgs.xorg.libXfixes
-          pkgs.xorg.libXi
-          pkgs.xorg.libXrandr
-          pkgs.xorg.libXrender
-          pkgs.xorg.libXScrnSaver
-          pkgs.xorg.libXtst
+          pkgs.libx11
+          pkgs.libxcb
+          pkgs.libxcomposite
+          pkgs.libxcursor
+          pkgs.libxdamage
+          pkgs.libxext
+          pkgs.libxfixes
+          pkgs.libxi
+          pkgs.libxrandr
+          pkgs.libxrender
+          pkgs.libxscrnsaver
+          pkgs.libxtst
           pkgs.libxkbcommon
           pkgs.mesa
           pkgs.nspr
@@ -166,7 +166,7 @@
           pkgs.liberation_ttf # fonts-liberation
           pkgs.atk
           pkgs.libdrm
-          pkgs.xorg.libxshmfence
+          pkgs.libxshmfence
           pkgs.gdk-pixbuf
         ]
         ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
